@@ -1,0 +1,5 @@
+*.o
+src/libcsfml/
+src/tools/
+include/header_tools.h
+include/header_csfml.h
