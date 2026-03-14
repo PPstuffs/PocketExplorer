@@ -12,6 +12,7 @@ int load_assets(void)
     create_window(WINW, WINH, WINNAME, sfDefaultStyle);
     init_cam();
     *get_clock() = sfClock_create();
+    make_file("hello", true);
     return SUCCESS;
 }
 

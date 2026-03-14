@@ -56,6 +56,13 @@
 
 // --------- STRUCTURES ---------
 
+typedef struct file_s {
+    struct file_s *next;
+    char *name;
+    sprite_t *sprite;
+    text_t *text;
+    bool is_dir;
+} file_t;
 
 
 // --------- FUNCTIONS ---------
@@ -63,6 +70,11 @@
 // --- cdtor.c ---
 int load_assets(void);
 void destroy_assets(void);
+
+// --- file_management.c ---
+file_t **get_filelist(void);
+file_t *make_file(char *name, bool is_dir);
+void free_file(file_t *file);
 
 
 #endif /* MAIN_H */

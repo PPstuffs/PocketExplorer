@@ -25,6 +25,8 @@ int update_csfml_stuff(void)
     update_music();
     update_sounds();
     update_animsprites();
+    draw_allsprites(NONE);
+    draw_alltexts(NONE);
     return SUCCESS;
 }
 
@@ -43,7 +45,7 @@ int launch(void)
 
     load_assets();
     while (sfRenderWindow_isOpen(WINDOW)) {
-        sfRenderWindow_clear(WINDOW, sfBlack);
+        sfRenderWindow_clear(WINDOW, (sfColor){46, 46, 46});
         retval = update_run();
         if (retval == ERROR)
             break;
