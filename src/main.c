@@ -15,6 +15,11 @@ static void events(void)
     while (sfRenderWindow_pollEvent(WINDOW, &event)) {
         if (event.type == sfEvtClosed)
             sfRenderWindow_close(WINDOW);
+        if (event.type == sfEvtMouseButtonPressed &&
+                event.mouseButton.button == sfMouseLeft)
+            move_directory(event.mouseButton.x, event.mouseButton.y);
+        if (event.type == sfEvtMouseWheelScrolled)
+            scroll_files(event.mouseWheelScroll);
     }
 }
 
@@ -45,7 +50,7 @@ int launch(void)
     int retval = ERROR;
 
     load_assets();
-    setup_files(".");
+    setup_files(*get_current_dir());
     while (sfRenderWindow_isOpen(WINDOW)) {
         sfRenderWindow_clear(WINDOW, (sfColor){46, 46, 46, 255});
         retval = update_run();
