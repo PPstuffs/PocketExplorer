@@ -37,8 +37,8 @@ file_t *make_file(char *name, bool is_dir)
         return SDFREE("%1 %1", nwfile->name, nwfile);
     nwfile->is_dir = is_dir;
     nwfile->text = make_text(name, name,
-        x, y + nwfile->sprite->rect.height / 3);
-    nwfile->text->color = sfWhite;
+        x, y + nwfile->sprite->rect.height / 4);
+    nwfile->text->color = (sfColor){180, 180, 180, 255};
     nwfile->text->scale = VEC(0.5, 0.5);
     center_text_origin(nwfile->text, 1, 1);
     if (nwfile->text == NULL) {
