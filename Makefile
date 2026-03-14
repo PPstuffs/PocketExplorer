@@ -65,6 +65,10 @@ $(NAME)	:	$(OBJ)
 		@gcc -o $(NAME) $(OBJ) -lcsfml-graphics -lcsfml-window -lcsfml-system -lcsfml-audio -lm;
 		@echo -e "\033[1;32mCompilation successful\033[0m\033[1m!\033[0m"
 
+val	:
+		@gcc -g3 -o $(NAME) $(SRC) -Wall -Wextra -Wshadow -lcsfml-graphics -lcsfml-window -lcsfml-system -lcsfml-audio -lm
+		@echo -e "\033[1;32mCompiled successfully! \033[36m(valgrind edition)\033[0m\033[1m!\033[0m"
+
 clean:
 		@n=0 ; \
 		for x in $(OBJ); do \
