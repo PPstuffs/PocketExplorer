@@ -12,12 +12,13 @@ int load_assets(void)
     create_window(WINW, WINH, WINNAME, sfDefaultStyle);
     init_cam();
     *get_clock() = sfClock_create();
-    make_file("hello", true);
     return SUCCESS;
 }
 
 void destroy_assets(void)
 {
+    while (*get_filelist())
+        DESTROY(*get_filelist(), get_filelist(), free_file);
     while (*get_texturelist())
         DESTROY(*get_texturelist(), get_texturelist(), free_texture);
     while (*get_spritelist())

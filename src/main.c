@@ -11,6 +11,7 @@ static void events(void)
 {
     sfEvent event;
 
+    resize_hovered_file(TOXY(GETMOUSEPOS));
     while (sfRenderWindow_pollEvent(WINDOW, &event)) {
         if (event.type == sfEvtClosed)
             sfRenderWindow_close(WINDOW);
@@ -44,8 +45,9 @@ int launch(void)
     int retval = ERROR;
 
     load_assets();
+    setup_files(".");
     while (sfRenderWindow_isOpen(WINDOW)) {
-        sfRenderWindow_clear(WINDOW, (sfColor){46, 46, 46});
+        sfRenderWindow_clear(WINDOW, (sfColor){46, 46, 46, 255});
         retval = update_run();
         if (retval == ERROR)
             break;

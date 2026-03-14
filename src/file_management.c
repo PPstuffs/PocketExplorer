@@ -19,11 +19,25 @@ static char *get_file_sprite([[maybe_unused]] char *name, bool is_dir)
     return (is_dir) ? "folder" : "file";
 }
 
+int get_x_pos(void)
+{
+    int len = LISTLEN(get_filelist());
+
+    return (len - 1) % ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
+}
+
+int get_y_pos(void)
+{
+    int len = LISTLEN(get_filelist());
+
+    return (len - 1) / ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
+}
+
 file_t *make_file(char *name, bool is_dir)
 {
     file_t *nwfile = malloc(sizeof(file_t) * 1);
-    int x = 100;
-    int y = 100;
+    int x = get_x_pos();
+    int y = get_y_pos();
 
     if (nwfile == NULL)
         return NULL;
@@ -55,6 +69,6 @@ void free_file(file_t *file)
         return;
     OMNIFREE(file->name, 1);
     DESTROY(file->sprite, get_spritelist(), free_sprite);
-    DESTROY(file->text, get_textlist(), free_sprite);
+    DESTROY(file->text, get_textlist(), free_text);
     OMNIFREE(file, 1);
 }
