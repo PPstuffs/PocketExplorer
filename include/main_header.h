@@ -36,7 +36,7 @@
     #define MAX_INT 2147483647
 
     // Program values:
-    #define WINNAME "name"
+    #define WINNAME "PocketExplorer"
     #define WINW 800
     #define WINH 600
     #define RESX 800
