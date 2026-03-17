@@ -88,7 +88,7 @@ void resize_hovered_file(int x, int y);
 
 // --- file_management.c ---
 file_t **get_filelist(void);
-file_t *make_file(char *name, bool is_dir);
+file_t *make_file(char *name, char *directory, bool is_dir);
 file_t *get_file(char const *name);
 void free_file(file_t *file);
 

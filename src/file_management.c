@@ -14,11 +14,6 @@ file_t **get_filelist(void)
     return &file_list;
 }
 
-static char *get_file_sprite([[maybe_unused]] char *name, bool is_dir)
-{
-    return (is_dir) ? "folder" : "file";
-}
-
 int get_x_pos(int index)
 {
     return (index - 1) % ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
@@ -29,19 +24,45 @@ int get_y_pos(int index)
     return (index - 1) / ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
 }
 
+static sprite_t *make_file_sprite(file_t *nwfile, char *name, int x, int y)
+{
+    sprite_t *sprite = NULL;
+    char *ext = get_file_format(name);
+    char *pwd = NULL;
+    float scale = 0.0;
+
+    if (my_strcmp(ext, ".mp3") == 0 || my_strcmp(ext, ".ogg") == 0 ||
+            my_strcmp(ext, ".wav") == 0 || my_strcmp(ext, ".flac") == 0)
+        return make_sprite(name, "music", x, y);
+    if (my_strcmp(ext, ".png") != 0 && my_strcmp(ext, ".jpg") != 0 &&
+            my_strcmp(ext, ".jpeg") != 0)
+        return make_sprite(name, (nwfile->is_dir) ? "folder" : "file", x, y);
+    pwd = MERGESTR(*get_current_dir(), "/", name);
+    if (pwd == NULL)
+        return NULL;
+    sprite = make_sprite(name, pwd, x, y);
+    OMNIFREE(pwd, 1);
+    if (sprite == NULL)
+        return NULL;
+    scale = MIN((float)FILE_SIZE / (float)sprite->rect.width,
+        (float)FILE_SIZE / (float)sprite->rect.height);
+    sprite->scale = VEC(scale, scale);
+    return sprite;
+}
+
 static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
 {
     nwfile->name = my_strdup(name);
     if (nwfile->name == NULL)
         return OMNIFREE(nwfile, 1);
-    nwfile->sprite = make_sprite(name,
-        get_file_sprite(name, nwfile->is_dir), x, y);
-    nwfile->sprite->scale = VEC(0.5, 0.5);
+    nwfile->sprite = make_file_sprite(nwfile, name, x, y);
+    nwfile->sprite->scale.x = nwfile->sprite->scale.x / 2.0;
+    nwfile->sprite->scale.y = nwfile->sprite->scale.y / 2.0;
     center_sprite_origin(nwfile->sprite, 0.5, 0.5);
     if (nwfile->sprite == NULL)
         return SDFREE("%1 %1", nwfile->name, nwfile);
     nwfile->text = make_text(name, name,
-        x, y + nwfile->sprite->rect.height / 4);
+        x, y + FILE_SIZE / 4);
     nwfile->text->color = (sfColor){180, 180, 180, 255};
     nwfile->text->scale = VEC(0.5, 0.5);
     center_text_origin(nwfile->text, 1, 1);
@@ -52,7 +73,7 @@ static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
     return nwfile;
 }
 
-file_t *make_file(char *name, bool is_dir)
+file_t *make_file(char *name, char *directory, bool is_dir)
 {
     file_t *nwfile = malloc(sizeof(file_t) * 1);
     int len = LISTLEN(get_filelist());

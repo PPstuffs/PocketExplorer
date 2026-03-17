@@ -11,16 +11,22 @@
 int setup_files(char *directory)
 {
     char **content = open_directory(directory);
+    char *temp = NULL;
     struct stat statbuf;
 
     my_sort_str_array(content);
     if (content == NULL)
         return ERROR;
     for (int i = 0; content[i] != NULL; i++) {
-        stat(content[i], &statbuf);
-        if (make_file(content[i], S_ISDIR(statbuf.st_mode)) == NULL)
+        temp = MERGESTR(directory, "/", content[i]);
+        if (temp == NULL)
+            return ERROR;
+        stat(temp, &statbuf);
+        OMNIFREE(temp, 1);
+        if (make_file(content[i], directory, S_ISDIR(statbuf.st_mode)) == NULL)
             return ERROR;
     }
+    OMNIFREE(content, 2);
     return SUCCESS;
 }
 
