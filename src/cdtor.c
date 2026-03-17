@@ -19,9 +19,6 @@ int load_assets(void)
     create_window(WINW, WINH, WINNAME, sfDefaultStyle);
     init_cam();
     *get_clock() = sfClock_create();
-    *get_current_dir() = my_strdup(".");
-    if (*get_current_dir() == NULL)
-        return ERROR;
     return SUCCESS;
 }
 
