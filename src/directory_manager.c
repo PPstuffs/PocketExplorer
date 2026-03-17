@@ -6,26 +6,21 @@
 */
 
 #include "../include/main_header.h"
-#include <dirent.h>
+#include <sys/stat.h>
 
 int setup_files(char *directory)
 {
-    DIR *dirp = opendir(directory);
-    struct dirent *dp;
+    char **content = open_directory(directory);
+    struct stat statbuf;
 
-    if (dirp == NULL)
+    my_sort_str_array(content);
+    if (content == NULL)
         return ERROR;
-    dp = readdir(dirp);
-    while (dp != NULL) {
-        if (dp->d_name[0] == '.' && my_strlen(dp->d_name) == 1) {
-            dp = readdir(dirp);
-            continue;
-        }
-        if (make_file(dp->d_name, (dp->d_type == DT_DIR)) == NULL)
+    for (int i = 0; content[i] != NULL; i++) {
+        stat(content[i], &statbuf);
+        if (make_file(content[i], S_ISDIR(statbuf.st_mode)) == NULL)
             return ERROR;
-        dp = readdir(dirp);
     }
-    closedir(dirp);
     return SUCCESS;
 }
 
