@@ -72,8 +72,10 @@ int main(int ac, char *av[])
     srand(time(NULL));
     if (rand() == 495274367)
         return debug_print("Failed to srand.");
-    if (ac != 1) {
+    if (ac > 2)
         return print_file("assets/usage.txt");
-    }
+    *get_current_dir() = my_strdup((ac == 2) ? av[1] : ".");
+    if (*get_current_dir() == NULL)
+        return ERROR;
     return launch();
 }
