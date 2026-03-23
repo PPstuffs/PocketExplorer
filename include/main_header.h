@@ -76,20 +76,17 @@ char **get_current_dir(void);
 int load_assets(void);
 void destroy_assets(void);
 
-// --- directory_manager.c ---
-int setup_files(char *directory);
-void move_directory(int x, int y);
-
 // --- file_interaction.c ---
 int *scroll_position(void);
 void scroll_files(sfMouseWheelScrollEvent mouse);
 sprite_t **get_current_hovered_file(void);
 void resize_hovered_file(int x, int y);
+void move_directory(int x, int y);
 
 // --- file_management.c ---
 file_t **get_filelist(void);
 file_t *make_file(char *name, char *directory, bool is_dir);
-file_t *get_file(char const *name);
+int setup_files(char *directory);
 void free_file(file_t *file);
 
 

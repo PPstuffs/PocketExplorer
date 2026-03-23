@@ -22,6 +22,8 @@ char *my_strdup(char const *src)
     int i = 0;
     char *str;
 
+    if (src == NULL)
+        return NULL;
     str = malloc(sizeof(char) * (my_strlen(src) + 1));
     if (str == NULL)
         return NULL;

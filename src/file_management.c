@@ -6,6 +6,7 @@
 */
 
 #include "../include/main_header.h"
+#include <sys/stat.h>
 
 file_t **get_filelist(void)
 {
@@ -14,12 +15,12 @@ file_t **get_filelist(void)
     return &file_list;
 }
 
-int get_x_pos(int index)
+static int get_x_pos(int index)
 {
     return (index - 1) % ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
 }
 
-int get_y_pos(int index)
+static int get_y_pos(int index)
 {
     return (index - 1) / ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
 }
@@ -56,8 +57,10 @@ static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
     if (nwfile->name == NULL)
         return OMNIFREE(nwfile, 1);
     nwfile->sprite = make_file_sprite(nwfile, name, x, y);
-    nwfile->sprite->scale.x = nwfile->sprite->scale.x / 2.0;
-    nwfile->sprite->scale.y = nwfile->sprite->scale.y / 2.0;
+    if (nwfile->sprite == NULL)
+        return SDFREE("%1 %1", nwfile->name, nwfile);
+    nwfile->sprite->scale.x /= 2.0;
+    nwfile->sprite->scale.y /= 2.0;
     center_sprite_origin(nwfile->sprite, 0.5, 0.5);
     if (nwfile->sprite == NULL)
         return SDFREE("%1 %1", nwfile->name, nwfile);
@@ -72,6 +75,17 @@ static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
         return SDFREE("%1 %1", nwfile->name, nwfile);
     }
     return nwfile;
+}
+
+static void setup_nwfile_tweens(file_t *nwfile, float speed)
+{
+    set_tween_delay(
+        make_tween(NULL, &nwfile->text->pos.y,
+            nwfile->text->pos.y - FILE_RISE_AMOUNT, 1),speed);
+    set_tween_delay(make_tween(NULL, &nwfile->text->alpha, 1, 1), speed);
+    set_tween_delay(make_tween(NULL, &nwfile->sprite->pos.y,
+        nwfile->sprite->pos.y - FILE_RISE_AMOUNT, 1), speed);
+    set_tween_delay(make_tween(NULL, &nwfile->sprite->alpha, 1, 1), speed);
 }
 
 file_t *make_file(char *name, char *directory, bool is_dir)
@@ -90,24 +104,32 @@ file_t *make_file(char *name, char *directory, bool is_dir)
     nwfile->sprite->pos.y += FILE_RISE_AMOUNT;
     nwfile->text->alpha = 0;
     nwfile->text->pos.y += FILE_RISE_AMOUNT;
-    run_timer(name, len / FILE_SPEED);
+    setup_nwfile_tweens(nwfile, len / FILE_SPEED);
     nwfile->next = *get_filelist();
     *get_filelist() = nwfile;
     return nwfile;
 }
 
-file_t *get_file(char const *name)
+int setup_files(char *directory)
 {
-    file_t *current = *get_filelist();
+    char **content = open_directory(directory);
+    char *temp = NULL;
+    struct stat statbuf;
 
-    if (name == NULL)
-        return NULL;
-    while (current != NULL) {
-        if (strcmp(current->name, name) == 0)
-            return current;
-        current = current->next;
+    my_sort_str_array(content);
+    if (content == NULL)
+        return ERROR;
+    for (int i = 0; content[i] != NULL; i++) {
+        temp = MERGESTR(directory, "/", content[i]);
+        if (temp == NULL)
+            return ERROR;
+        stat(temp, &statbuf);
+        OMNIFREE(temp, 1);
+        if (make_file(content[i], directory, S_ISDIR(statbuf.st_mode)) == NULL)
+            return ERROR;
     }
-    return NULL;
+    OMNIFREE(content, 2);
+    return SUCCESS;
 }
 
 void free_file(file_t *file)
