@@ -61,12 +61,19 @@
 
 // --------- STRUCTURES ---------
 
+typedef enum filetype_s {
+    FOLDER,
+    IMAGE,
+    SONG,
+    OTHERFILE
+} filetype_t;
+
 typedef struct file_s {
     struct file_s *next;
     char *name;
     sprite_t *sprite;
     text_t *text;
-    bool is_dir;
+    filetype_t type;
 } file_t;
 
 // --------- FUNCTIONS ---------

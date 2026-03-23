@@ -33,11 +33,15 @@ static sprite_t *make_file_sprite(file_t *nwfile, char *name, int x, int y)
     float scale = 0.0;
 
     if (my_strcmp(ext, ".mp3") == 0 || my_strcmp(ext, ".ogg") == 0 ||
-            my_strcmp(ext, ".wav") == 0 || my_strcmp(ext, ".flac") == 0)
+            my_strcmp(ext, ".wav") == 0 || my_strcmp(ext, ".flac") == 0) {
+        nwfile->type = SONG;
         return make_sprite(name, "music", x, y);
+    }
     if (my_strcmp(ext, ".png") != 0 && my_strcmp(ext, ".jpg") != 0 &&
             my_strcmp(ext, ".jpeg") != 0)
-        return make_sprite(name, (nwfile->is_dir) ? "folder" : "file", x, y);
+        return make_sprite(name, (nwfile->type == FOLDER) ? "folder" : "file",
+            x, y);
+    nwfile->type = IMAGE;
     pwd = MERGESTR(*get_current_dir(), "/", name);
     if (pwd == NULL)
         return NULL;
@@ -97,7 +101,7 @@ file_t *make_file(char *name, char *directory, bool is_dir)
 
     if (nwfile == NULL)
         return NULL;
-    nwfile->is_dir = is_dir;
+    nwfile->type = (is_dir == true) ? FOLDER : OTHERFILE;
     if (setup_new_file(nwfile, name, x, y) == NULL)
         return NULL;
     nwfile->sprite->alpha = 0;

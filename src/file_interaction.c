@@ -62,11 +62,11 @@ static bool is_file_hovered(file_t *file, sfVector2i p)
 {
     sprite_t *sprite = file->sprite;
     sfFloatRect bounds = sfSprite_getGlobalBounds(sprite->sprite);
-    float new_scale = 0.0;
+    static float new_scale = 0.0;
 
-    if (*get_current_hovered_file() != sprite &&
+    if (file->type != IMAGE && *get_current_hovered_file() != sprite &&
             sfFloatRect_contains(&bounds, p.x, p.y)) {
-        new_scale = (file->is_dir == false) ? 0.55 : 0.7;
+        new_scale = (file->type == FOLDER) ? 0.7 : 0.55;
         *get_current_hovered_file() = sprite;
         set_tween_method(
             make_tween(sprite->name, &sprite->scale.x, new_scale, 0.2),
@@ -126,7 +126,7 @@ static bool is_file_clicked(file_t *file, int x, int y)
     char *temp = NULL;
 
     if (sfFloatRect_contains(&bounds, x, y)) {
-        if (file->is_dir == false) {
+        if (file->type != FOLDER) {
             make_tween("fileposx", &file->sprite->pos.y,
                 file->sprite->pos.y - 5, 0.1)->method = FETCH;
             return true;
