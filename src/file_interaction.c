@@ -18,17 +18,14 @@ static void scroll_file(sfMouseWheelScrollEvent mouse, file_t *current, char *te
 {
     float pos = current->sprite->pos.y;
     float pos_text = current->text->pos.y;
-    char *text_temp = MERGESTR("t", current->name);
 
-    if (text_temp == NULL)
-        return;
     if (get_tween(temp) != NULL)
         pos = get_tween(temp)->dest;
     make_tween(temp, &current->sprite->pos.y,
         pos + mouse.delta * SCROLL_SPEED, 0.5);
-    if (get_tween(text_temp) != NULL)
-        pos_text = get_tween(text_temp)->dest;
-    make_tween(text_temp, &current->text->pos.y,
+    if (get_tween(current->name) != NULL)
+        pos_text = get_tween(current->name)->dest;
+    make_tween(current->name, &current->text->pos.y,
         pos_text + mouse.delta * SCROLL_SPEED, 0.5);
 }
 
@@ -81,12 +78,15 @@ static void detect_file_mouse_hovered(file_t *file, sfVector2i p)
     sprite_t *sprite = file->sprite;
     sfFloatRect bounds = sfSprite_getGlobalBounds(sprite->sprite);
 
-    if (file->is_dir && sfFloatRect_contains(&bounds, p.x, p.y)) {
+    if (file->is_dir && *get_current_hovered_file() != sprite &&
+            sfFloatRect_contains(&bounds, p.x, p.y)) {
         *get_current_hovered_file() = sprite;
-        if (sprite->scale.x < 0.7)
-            sprite->scale.x += 0.05;
-        if (sprite->scale.y < 0.7)
-            sprite->scale.y += 0.05;
+        set_tween_method(
+            make_tween(sprite->name, &sprite->scale.x, 0.7, 0.2),
+            BACKOUT, 5);
+        set_tween_method(
+            make_tween(&sprite->name[1], &sprite->scale.y, 0.7, 0.2),
+            BACKOUT, 5);
         return;
     }
 }
@@ -94,10 +94,21 @@ static void detect_file_mouse_hovered(file_t *file, sfVector2i p)
 void resize_hovered_file(int x, int y)
 {
     file_t *current = *get_filelist();
+    sprite_t *sprite = *get_current_hovered_file();
+    sfFloatRect bounds;
 
-    if (*get_timerlist() != NULL)
-        return;
-    reset_hovered_file(x, y);
+    if (sprite != NULL && sprite->scale.x != 0.5) {
+        bounds = sfSprite_getGlobalBounds(sprite->sprite);
+        if (!sfFloatRect_contains(&bounds, x, y)) {
+            *get_current_hovered_file() = NULL;
+            set_tween_method(
+                make_tween(sprite->name, &sprite->scale.x, 0.5, 0.5),
+                BACKOUT, 5);
+            set_tween_method(
+                make_tween(&sprite->name[1], &sprite->scale.y, 0.5, 0.5),
+                BACKOUT, 5);
+        }
+    }
     while (current != NULL) {
         detect_file_mouse_hovered(current, IVEC(x, y));
         current = current->next;
@@ -128,7 +139,7 @@ static int detect_file_mouse_clicked(file_t *file, int x, int y)
 
     if (sfFloatRect_contains(&bounds, x, y)) {
         if (file->is_dir == false) {
-            make_tween(NULL, &file->sprite->pos.y,
+            make_tween("fileposx", &file->sprite->pos.y,
                 file->sprite->pos.y - 5, 0.1)->method = FETCH;
             return TRUE;
         }
