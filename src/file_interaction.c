@@ -106,7 +106,7 @@ void resize_hovered_file(int x, int y)
 
 static int change_dir(file_t *file)
 {
-    char *temp = temp = MERGESTR(*get_current_dir(), "/", file->name);
+    char *temp = MERGESTR(*get_current_dir(), "/", file->name);
 
     if (temp == NULL)
         return ERROR;
