@@ -66,14 +66,14 @@ static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
         return SDFREE("%1 %1", nwfile->name, nwfile);
     nwfile->text = make_text(name, name,
         x, y + FILE_SIZE / 4);
-    nwfile->text->color = (sfColor){180, 180, 180, 255};
-    nwfile->text->scale = VEC(MIN((FILE_SIZE - 10) /
-        (float)sfText_getGlobalBounds(nwfile->text->text).width, 0.5), 0.5);
-    center_text_origin(nwfile->text, 0.5, 0.5);
     if (nwfile->text == NULL) {
         DESTROY(nwfile->sprite, get_spritelist(), free_sprite);
         return SDFREE("%1 %1", nwfile->name, nwfile);
     }
+    nwfile->text->color = (sfColor){180, 180, 180, 255};
+    nwfile->text->scale = VEC(MIN((FILE_SIZE - 10) /
+        (float)sfText_getGlobalBounds(nwfile->text->text).width, 0.5), 0.5);
+    center_text_origin(nwfile->text, 0.5, 0.5);
     return nwfile;
 }
 
