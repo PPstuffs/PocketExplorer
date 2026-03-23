@@ -77,9 +77,7 @@ int load_assets(void);
 void destroy_assets(void);
 
 // --- file_interaction.c ---
-int *scroll_position(void);
 void scroll_files(sfMouseWheelScrollEvent mouse);
-sprite_t **get_current_hovered_file(void);
 void resize_hovered_file(int x, int y);
 void move_directory(int x, int y);
 
