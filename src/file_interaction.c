@@ -90,10 +90,10 @@ void resize_hovered_file(int x, int y)
         if (!sfFloatRect_contains(&bounds, x, y)) {
             *get_current_hovered_file() = NULL;
             set_tween_method(
-                make_tween(sprite->name, &sprite->scale.x, 0.5, 0.5),
+                make_tween(sprite->name, &sprite->scale.x, 0.5, 0.35),
                 BACKOUT, 5);
             set_tween_method(
-                make_tween(&sprite->name[1], &sprite->scale.y, 0.5, 0.5),
+                make_tween(&sprite->name[1], &sprite->scale.y, 0.5, 0.35),
                 BACKOUT, 5);
         }
     }
