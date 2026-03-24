@@ -12,6 +12,7 @@
     #include <stdlib.h>
     #include <unistd.h>
     #include <stdio.h>
+    #include "header_tools.h"
 
     // defines:
     #define SUCCESS 0
@@ -20,6 +21,12 @@
     #define FALSE 0
     #define PRINT(format, ...) mini_printf(format, __VA_ARGS__)
 
+    // Operator defines
+    #define ADD my_add
+    #define SUB my_sub
+    #define MUL my_mul
+    #define DIV my_div
+    #define MOD garrys_mod
 
 // --------- LIB FUNCTIONS ---------
 
@@ -35,6 +42,12 @@ int my_sort_str_array(char **array);
 
 // --- my_filelib.c ---
 int print_file(char *filename);
+
+// --- my_operator.c ---
+float my_add(float a, float b);
+float my_sub(float a, float b);
+float my_mul(float a, float b);
+float my_div(float a, float b);
 
 // --- my_stringlib.c ---
 int my_strlen(char const *str);
