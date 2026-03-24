@@ -93,6 +93,7 @@ void resize_hovered_file(int x, int y);
 
 // --- file_management.c ---
 file_t **get_filelist(void);
+sfVector2i get_file_pos(int i);
 file_t *make_file(char *name, char *directory, bool is_dir);
 int setup_files(char *directory);
 void free_file(file_t *file);

@@ -14,27 +14,40 @@ file_t **get_hovered_file(void)
     return &file;
 }
 
+static void launch_hoverfile_tween(file_t *file, float imgscale, float time,
+    float op(float, float))
+{
+    sprite_t *sprite = file->sprite;
+    tween_t *tw = get_tween(&sprite->name[2]);
+    char *tween_name = MERGESTR("tween", sprite->name);
+    sfVector2i p = get_file_pos(LISTLEN(get_filelist()) - GETNODEORD(file,
+        get_filelist()) - 1);
+
+    if (tween_name == NULL)
+        return;
+    set_tween_method(
+        make_tween(tween_name, &sprite->scale.x, imgscale, 0.2),
+        BACKOUT, 5);
+    set_tween_method(
+        make_tween(&tween_name[1], &sprite->scale.y, imgscale, 0.2),
+        BACKOUT, 5);
+    set_tween_method(
+        make_tween(&tween_name[2], &file->text->pos.y,
+        op(p.y + FILE_SIZE / 4 + 7, 7), time),
+        BACKOUT, 5);
+    OMNIFREE(tween_name, 1);
+}
+
 static bool is_file_hovered(file_t *file, sfVector2i p)
 {
     sprite_t *sprite = file->sprite;
     static float new_scale = 0.0;
-    tween_t *tw = NULL;
   
     if (file->type != IMAGE && *get_hovered_file() != file &&
             sprite_rect_contains(sprite, TOXY(p))) {
-        new_scale = (file->type == FOLDER) ? 0.7 : 0.55;
         *get_hovered_file() = file;
-        set_tween_method(
-            make_tween(sprite->name, &sprite->scale.x, new_scale, 0.2),
-            BACKOUT, 5);
-        set_tween_method(
-            make_tween(&sprite->name[1], &sprite->scale.y, new_scale, 0.2),
-            BACKOUT, 5);
-        tw = get_tween(&sprite->name[2]);
-        set_tween_method(
-            make_tween(&sprite->name[2], &file->text->pos.y,
-            (tw != NULL) ? tw->dest + 10 : file->text->pos.y + 10, 0.2),
-            BACKOUT, 5);
+        launch_hoverfile_tween(file,
+            (file->type == FOLDER) ? 0.7 : 0.55, 0.2, ADD);
         return true;
     }
     return false;
@@ -44,22 +57,11 @@ void resize_hovered_file(int x, int y)
 {
     file_t *current = *get_filelist();
     file_t *f = *get_hovered_file();
-    tween_t *tw = NULL;
 
-    if (f->sprite != NULL && f->sprite->scale.x != 0.5 &&
-            !sprite_rect_contains(file->sprite, x, y)) {
+    if (f != NULL && f->sprite != NULL && f->sprite->scale.x != 0.5 &&
+            !sprite_rect_contains(f->sprite, x, y)) {
         *get_hovered_file() = NULL;
-        set_tween_method(
-            make_tween(f->sprite->name, &f->sprite->scale.x, 0.5, 0.35),
-            BACKOUT, 5);
-        set_tween_method(
-            make_tween(&f->sprite->name[1], &f->sprite->scale.y, 0.5, 0.35),
-            BACKOUT, 5);
-        tw = get_tween(&f->sprite->name[2]);
-        set_tween_method(
-            make_tween(&f->name[2], &f->text->pos.y,
-            (tw != NULL) ? tw->dest - 10 : f->text->pos.y - 10, 0.35),
-            BACKOUT, 5);
+        launch_hoverfile_tween(f, 0.5, 0.35, SUB);
     }
     for (; current != NULL; current = current->next) {
         if (is_file_hovered(current, IVEC(x, y)) == true)

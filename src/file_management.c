@@ -15,14 +15,10 @@ file_t **get_filelist(void)
     return &file_list;
 }
 
-static int get_x_pos(int index)
+sfVector2i get_file_pos(int i)
 {
-    return (index - 1) % ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
-}
-
-static int get_y_pos(int index)
-{
-    return (index - 1) / ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100;
+    return IVEC((i - 1) % ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100,
+        (i - 1) / ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100);
 }
 
 static sprite_t *make_file_sprite(file_t *nwfile, char *name, int x, int y)
@@ -96,13 +92,12 @@ file_t *make_file(char *name, char *directory, bool is_dir)
 {
     file_t *nwfile = malloc(sizeof(file_t) * 1);
     int len = LISTLEN(get_filelist());
-    int x = get_x_pos(len);
-    int y = get_y_pos(len);
+    sfVector2i p = get_file_pos(len);
 
     if (nwfile == NULL)
         return NULL;
     nwfile->type = (is_dir == true) ? FOLDER : OTHERFILE;
-    if (setup_new_file(nwfile, name, x, y) == NULL)
+    if (setup_new_file(nwfile, name, TOXY(p)) == NULL)
         return NULL;
     nwfile->sprite->alpha = 0;
     nwfile->sprite->pos.y += FILE_RISE_AMOUNT;
