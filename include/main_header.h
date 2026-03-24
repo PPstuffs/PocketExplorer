@@ -83,10 +83,13 @@ char **get_current_dir(void);
 int load_assets(void);
 void destroy_assets(void);
 
-// --- file_interaction.c ---
+// --- file_input_nav.c ---
 void scroll_files(sfMouseWheelScrollEvent mouse);
-void resize_hovered_file(int x, int y);
 void move_directory(int x, int y);
+
+// --- file_interaction.c ---
+file_t **get_hovered_file(void);
+void resize_hovered_file(int x, int y);
 
 // --- file_management.c ---
 file_t **get_filelist(void);
