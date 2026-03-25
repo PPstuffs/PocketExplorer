@@ -88,6 +88,25 @@ static void setup_nwfile_tweens(file_t *nwfile, float speed)
     set_tween_delay(make_tween(NULL, &nwfile->sprite->alpha, 1, 1), speed);
 }
 
+static int setup_pwd(char *directory)
+{
+    text_t *text = get_text("pwd");
+    float x = 0.0;
+
+    if (text == NULL) {
+        text = make_text("pwd", directory, WINW / 2, 5);
+        text->scale = VEC(0.5, 0.5);
+        text->color = (sfColor){180, 180, 180, 255};
+    } else {
+        x = sfText_getGlobalBounds(text->text).width;
+        set_text_string(text, directory);
+        x = (WINW + sfText_getGlobalBounds(text->text).width - x) / 2.0;
+        make_tween("pwdx", &text->pos.x, WINW / 2, 0.5)->start = x;
+    }
+    center_text_origin(text, 0.5, 0);
+    return SUCCESS;
+}
+
 file_t *make_file(char *name, char *directory, bool is_dir)
 {
     file_t *nwfile = malloc(sizeof(file_t) * 1);
@@ -154,7 +173,7 @@ int setup_files(char *directory)
         make_file(content[i], dir, S_ISDIR(statbuf.st_mode));
     }
     OMNIFREE(content, 2);
-    return SUCCESS;
+    return setup_pwd(dir);
 }
 
 void free_file(file_t *file)
