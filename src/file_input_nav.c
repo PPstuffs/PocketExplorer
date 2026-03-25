@@ -14,41 +14,15 @@ int *scroll_position(void)
     return &factor;
 }
 
-static void scroll_file(sfMouseWheelScrollEvent mouse, file_t *current, char *temp)
-{
-    float pos = current->sprite->pos.y;
-    float pos_text = current->text->pos.y;
-
-    if (get_tween(temp) != NULL)
-        pos = get_tween(temp)->dest;
-    make_tween(temp, &current->sprite->pos.y,
-        pos + mouse.delta * SCROLL_SPEED, 0.5);
-    if (get_tween(current->name) != NULL)
-        pos_text = get_tween(current->name)->dest;
-    make_tween(current->name, &current->text->pos.y,
-        pos_text + mouse.delta * SCROLL_SPEED, 0.5);
-}
-
 void scroll_files(sfMouseWheelScrollEvent mouse)
 {
     file_t *cur = *get_filelist();
     char *temp = NULL;
+    static float scroll = 0.0;
 
-    if (cur == NULL || (mouse.delta > 0 && *scroll_position() <= 0) ||
-            (mouse.delta < 0 && cur->sprite->pos.y <= FILE_SIZE))
+    if (mouse.delta > 0 && CAM->center.y <= WINH / 2)
         return;
-    for (; cur != NULL; cur = cur->next) {
-        if (get_tween(cur->name) != NULL)
-            return;
-    }
-    *scroll_position() = MAX(0, *scroll_position() + mouse.delta * -SCROLL_SPEED);
-    for (cur = *get_filelist(); cur != NULL; cur = cur->next) {
-        temp = MERGESTR("s", cur->name);
-        if (temp == NULL)
-            continue;
-        scroll_file(mouse, cur, temp);
-        OMNIFREE(temp, 1);
-    }
+    CAM->center.y += -mouse.delta * SCROLL_SPEED;
 }
 
 void reset_files(void)
@@ -90,8 +64,10 @@ void move_directory(int x, int y)
     file_t *current = *get_filelist();
 
     while (current != NULL) {
-        if (is_file_clicked(current, x, y) == true)
+        if (is_file_clicked(current, x, y) == true) {
+            CAM->center.y = WINH / 2;
             return;
+        }
         current = current->next;
     }
 }

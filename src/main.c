@@ -10,14 +10,16 @@
 static void events(void)
 {
     sfEvent event;
+    sfVector2i p = {CAM->center.x + (GETMOUSEPOS.x + CAM->offset.x - 400),
+        CAM->center.y + (GETMOUSEPOS.y + CAM->offset.y - 300)};
 
-    resize_hovered_file(TOXY(GETMOUSEPOS));
+    resize_hovered_file(TOXY(p));
     while (sfRenderWindow_pollEvent(WINDOW, &event)) {
         if (event.type == sfEvtClosed)
             sfRenderWindow_close(WINDOW);
         if (event.type == sfEvtMouseButtonPressed &&
                 event.mouseButton.button == sfMouseLeft)
-            move_directory(event.mouseButton.x, event.mouseButton.y);
+            move_directory(TOXY(p));
         if (event.type == sfEvtMouseWheelScrolled)
             scroll_files(event.mouseWheelScroll);
     }
