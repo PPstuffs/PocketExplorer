@@ -73,7 +73,7 @@ static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
     nwfile->text->color = (sfColor){180, 180, 180, 255};
     nwfile->text->scale = VEC(MIN((FILE_SIZE - 10) /
         (float)sfText_getGlobalBounds(nwfile->text->text).width, 0.5), 0.5);
-    center_text_origin(nwfile->text, 0.5, 0.5);
+    center_text_origin(nwfile->text, 0.5, 0);
     return nwfile;
 }
 
