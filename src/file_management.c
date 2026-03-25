@@ -109,15 +109,39 @@ file_t *make_file(char *name, char *directory, bool is_dir)
     return nwfile;
 }
 
+static void init_dir(const char *newdir, char *dir)
+{
+    char *temp = NULL;
+
+    if (my_strcmp(newdir, "..") != 0) {
+        temp = MERGESTR((dir == NULL) ? "." : dir, "/", newdir);
+        if (temp == NULL)
+            return;
+        OMNIFREE(dir, 1);
+        dir = temp;
+        return;
+    }
+    if (dir == NULL)
+        return;
+    for (int i = my_strlen(dir); i > 0; i--) {
+        if (dir[i] == '/') {
+            dir[i] = '\0';
+            break;
+        }
+    }
+}
+
 int setup_files(char *directory)
 {
     char **content = open_directory(directory);
+    static char *dir = NULL;
     char *temp = NULL;
     struct stat statbuf;
 
     my_sort_str_array(content);
     if (content == NULL)
         return ERROR;
+    init_dir(directory, dir);
     for (int i = 0; content[i] != NULL; i++) {
         temp = MERGESTR(directory, "/", content[i]);
         if (temp == NULL)
