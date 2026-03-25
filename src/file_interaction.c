@@ -41,7 +41,6 @@ static void launch_hoverfile_tween(file_t *file, float imgscale, float time,
 static bool is_file_hovered(file_t *file, sfVector2i p)
 {
     sprite_t *sprite = file->sprite;
-    static float new_scale = 0.0;
   
     if (file->type != IMAGE && *get_hovered_file() != file &&
             sprite_rect_contains(sprite, TOXY(p))) {

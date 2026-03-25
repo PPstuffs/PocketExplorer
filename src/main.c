@@ -45,12 +45,12 @@ int update_run(void)
     return SUCCESS;
 }
 
-int launch(void)
+int launch(int ac, char *av[])
 {
     int retval = ERROR;
 
     load_assets();
-    setup_files(*get_current_dir());
+    setup_files((ac == 2) ? av[1] : ".");
     while (sfRenderWindow_isOpen(WINDOW)) {
         sfRenderWindow_clear(WINDOW, (sfColor){46, 46, 46, 255});
         retval = update_run();
@@ -74,8 +74,5 @@ int main(int ac, char *av[])
         return debug_print("Failed to srand.");
     if (ac > 2)
         return print_file("assets/usage.txt");
-    *get_current_dir() = my_strdup((ac == 2) ? av[1] : ".");
-    if (*get_current_dir() == NULL)
-        return ERROR;
-    return launch();
+    return launch(ac, av);
 }

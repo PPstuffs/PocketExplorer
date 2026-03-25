@@ -7,13 +7,6 @@
 
 #include "../include/main_header.h"
 
-char **get_current_dir(void)
-{
-    static char *dir = NULL;
-
-    return &dir;
-}
-
 int load_assets(void)
 {
     create_window(WINW, WINH, WINNAME, sfDefaultStyle);

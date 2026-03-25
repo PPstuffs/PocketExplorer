@@ -51,31 +51,7 @@ void scroll_files(sfMouseWheelScrollEvent mouse)
     }
 }
 
-static int change_current_dir(file_t *file)
-{
-    char *temp = NULL;
-    char *dir = (*get_current_dir());
-
-    if (my_strcmp(file->name, "..") != 0) {
-        temp = MERGESTR(*get_current_dir(), "/", file->name);
-        if (temp == NULL)
-            return ERROR;
-        OMNIFREE(*get_current_dir(), 1);
-        *get_current_dir() = temp;
-        return SUCCESS;
-    }
-    if (*get_current_dir() == NULL)
-        return ERROR;
-    for (int i = my_strlen(dir); i > 0; i--) {
-        if (dir[i] == '/') {
-            dir[i] = '\0';
-            break;
-        }
-    }
-    return SUCCESS;
-}
-
-static void reset_files(void)
+void reset_files(void)
 {
     while (*get_tweenlist())
         DESTROY(*get_tweenlist(), get_tweenlist(), free_tween);
@@ -89,6 +65,7 @@ static bool is_file_clicked(file_t *file, int x, int y)
 {
     float pos = 0.0;
     tween_t *tween = NULL;
+    char *temp = NULL;
 
     if (sprite_rect_contains(file->sprite, x, y)) {
         if (file->type != FOLDER) {
@@ -99,10 +76,10 @@ static bool is_file_clicked(file_t *file, int x, int y)
             tween->method = FETCH;
             return false;
         }
-        if (change_current_dir(file) == ERROR)
-            return false;
+        temp = my_strdup(file->name);
         reset_files();
-        setup_files(*get_current_dir());
+        setup_files(temp);
+        OMNIFREE(temp, 1);
         return true;
     }
     return false;

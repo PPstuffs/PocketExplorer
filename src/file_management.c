@@ -38,7 +38,7 @@ static sprite_t *make_file_sprite(file_t *nwfile, char *name, int x, int y)
         return make_sprite(name, (nwfile->type == FOLDER) ? "folder" : "file",
             x, y);
     nwfile->type = IMAGE;
-    pwd = MERGESTR(*get_current_dir(), "/", name);
+    pwd = MERGESTR(name, "/", name);
     if (pwd == NULL)
         return NULL;
     sprite = make_sprite(name, pwd, x, y);
@@ -109,47 +109,49 @@ file_t *make_file(char *name, char *directory, bool is_dir)
     return nwfile;
 }
 
-static void init_dir(const char *newdir, char *dir)
+static char *init_dir(const char *newdir, char *dir)
 {
     char *temp = NULL;
 
+    if (dir == NULL)
+        return my_strdup(newdir);
     if (my_strcmp(newdir, "..") != 0) {
-        temp = MERGESTR((dir == NULL) ? "." : dir, "/", newdir);
+        temp = MERGESTR(dir, "/", newdir);
         if (temp == NULL)
-            return;
+            return NULL;
         OMNIFREE(dir, 1);
-        dir = temp;
-        return;
+        return temp;
     }
     if (dir == NULL)
-        return;
+        return NULL;
     for (int i = my_strlen(dir); i > 0; i--) {
         if (dir[i] == '/') {
             dir[i] = '\0';
             break;
         }
     }
+    return dir;
 }
 
 int setup_files(char *directory)
 {
-    char **content = open_directory(directory);
     static char *dir = NULL;
+    char **content = NULL;
     char *temp = NULL;
     struct stat statbuf;
 
+    dir = init_dir(directory, dir);
+    content = open_directory(dir);
     my_sort_str_array(content);
     if (content == NULL)
         return ERROR;
-    init_dir(directory, dir);
-    for (int i = 0; content[i] != NULL; i++) {
-        temp = MERGESTR(directory, "/", content[i]);
+    for (int i = my_strcmp(dir, ".") == 0 ? 1 : 0; content[i] != NULL; i++) {
+        temp = MERGESTR(dir, "/", content[i]);
         if (temp == NULL)
             return ERROR;
         stat(temp, &statbuf);
         OMNIFREE(temp, 1);
-        if (make_file(content[i], directory, S_ISDIR(statbuf.st_mode)) == NULL)
-            return ERROR;
+        make_file(content[i], dir, S_ISDIR(statbuf.st_mode));
     }
     OMNIFREE(content, 2);
     return SUCCESS;

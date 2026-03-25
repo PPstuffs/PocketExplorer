@@ -79,12 +79,12 @@ typedef struct file_s {
 // --------- FUNCTIONS ---------
 
 // --- cdtor.c ---
-char **get_current_dir(void);
 int load_assets(void);
 void destroy_assets(void);
 
 // --- file_input_nav.c ---
 void scroll_files(sfMouseWheelScrollEvent mouse);
+void reset_files(void);
 void move_directory(int x, int y);
 
 // --- file_interaction.c ---
