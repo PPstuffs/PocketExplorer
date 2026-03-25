@@ -21,28 +21,27 @@ sfVector2i get_file_pos(int i)
         (i - 1) / ((WINH + FILE_SIZE) / FILE_SIZE) * FILE_SIZE + 100);
 }
 
-static sprite_t *make_file_sprite(file_t *nwfile, char *name, int x, int y)
+static sprite_t *make_file_sprite(file_t *nwfile, char *name, char *directory,
+    sfVector2i p)
 {
     sprite_t *sprite = NULL;
     char *ext = get_file_format(name);
-    char *pwd = NULL;
+    char *temp = NULL;
     float scale = 0.0;
 
     if (my_strcmp(ext, ".mp3") == 0 || my_strcmp(ext, ".ogg") == 0 ||
             my_strcmp(ext, ".wav") == 0 || my_strcmp(ext, ".flac") == 0) {
         nwfile->type = SONG;
-        return make_sprite(name, "music", x, y);
+        return make_sprite(name, "music", TOXY(p));
     }
     if (my_strcmp(ext, ".png") != 0 && my_strcmp(ext, ".jpg") != 0 &&
             my_strcmp(ext, ".jpeg") != 0)
         return make_sprite(name, (nwfile->type == FOLDER) ? "folder" : "file",
-            x, y);
+            TOXY(p));
     nwfile->type = IMAGE;
-    pwd = MERGESTR(name, "/", name);
-    if (pwd == NULL)
-        return NULL;
-    sprite = make_sprite(name, pwd, x, y);
-    OMNIFREE(pwd, 1);
+    temp = MERGESTR(directory, "/", name);
+    sprite = make_sprite(name, temp, TOXY(p));
+    OMNIFREE(temp, 1);
     if (sprite == NULL)
         return NULL;
     scale = MIN((float)FILE_SIZE / (float)sprite->rect.width,
@@ -51,12 +50,13 @@ static sprite_t *make_file_sprite(file_t *nwfile, char *name, int x, int y)
     return sprite;
 }
 
-static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
+static file_t *setup_new_file(file_t *nwfile, char *name, char *directory,
+    sfVector2i p)
 {
     nwfile->name = my_strdup(name);
     if (nwfile->name == NULL)
         return OMNIFREE(nwfile, 1);
-    nwfile->sprite = make_file_sprite(nwfile, name, x, y);
+    nwfile->sprite = make_file_sprite(nwfile, name, directory, p);
     if (nwfile->sprite == NULL)
         return SDFREE("%1 %1", nwfile->name, nwfile);
     nwfile->sprite->scale.x /= 2.0;
@@ -65,7 +65,7 @@ static file_t *setup_new_file(file_t *nwfile, char *name, int x, int y)
     if (nwfile->sprite == NULL)
         return SDFREE("%1 %1", nwfile->name, nwfile);
     nwfile->text = make_text(name, name,
-        x, y + FILE_SIZE / 4);
+        p.x, p.y + FILE_SIZE / 4);
     if (nwfile->text == NULL) {
         DESTROY(nwfile->sprite, get_spritelist(), free_sprite);
         return SDFREE("%1 %1", nwfile->name, nwfile);
@@ -97,7 +97,7 @@ file_t *make_file(char *name, char *directory, bool is_dir)
     if (nwfile == NULL)
         return NULL;
     nwfile->type = (is_dir == true) ? FOLDER : OTHERFILE;
-    if (setup_new_file(nwfile, name, TOXY(p)) == NULL)
+    if (setup_new_file(nwfile, name, directory, p) == NULL)
         return NULL;
     nwfile->sprite->alpha = 0;
     nwfile->sprite->pos.y += FILE_RISE_AMOUNT;

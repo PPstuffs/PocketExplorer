@@ -41,10 +41,16 @@ static void launch_hoverfile_tween(file_t *file, float imgscale, float time,
 static bool is_file_hovered(file_t *file, sfVector2i p)
 {
     sprite_t *sprite = file->sprite;
+    sfVector2f scale;
   
-    if (file->type != IMAGE && *get_hovered_file() != file &&
-            sprite_rect_contains(sprite, TOXY(p))) {
+    if (*get_hovered_file() != file && sprite_rect_contains(sprite, TOXY(p))) {
         *get_hovered_file() = file;
+        if (file->type == IMAGE) {
+            launch_hoverfile_tween(file, MIN((float)FILE_SIZE /
+                (float)sprite->rect.width, (float)FILE_SIZE /
+                (float)sprite->rect.height) / 1.75, 0.2, ADD);
+            return true;
+        }
         launch_hoverfile_tween(file,
             (file->type == FOLDER) ? 0.7 : 0.55, 0.2, ADD);
         return true;
@@ -60,6 +66,11 @@ void resize_hovered_file(int x, int y)
     if (f != NULL && f->sprite != NULL && f->sprite->scale.x != 0.5 &&
             !sprite_rect_contains(f->sprite, x, y)) {
         *get_hovered_file() = NULL;
+        if (f->type == IMAGE) {
+            launch_hoverfile_tween(f, MIN((float)FILE_SIZE /
+                (float)f->sprite->rect.width, (float)FILE_SIZE /
+                (float)f->sprite->rect.height) / 2.0, 0.35, SUB);
+        } else
         launch_hoverfile_tween(f, 0.5, 0.35, SUB);
     }
     for (; current != NULL; current = current->next) {

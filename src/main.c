@@ -52,7 +52,7 @@ int launch(int ac, char *av[])
     load_assets();
     setup_files((ac == 2) ? av[1] : ".");
     while (sfRenderWindow_isOpen(WINDOW)) {
-        sfRenderWindow_clear(WINDOW, (sfColor){46, 46, 46, 255});
+        sfRenderWindow_clear(WINDOW, (sfColor){36, 36, 36, 255});
         retval = update_run();
         if (retval == ERROR)
             break;
