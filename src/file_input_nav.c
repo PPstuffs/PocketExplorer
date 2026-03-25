@@ -53,18 +53,33 @@ void scroll_files(sfMouseWheelScrollEvent mouse)
 
 static int change_dir(file_t *file)
 {
-    char *temp = MERGESTR(*get_current_dir(), "/", file->name);
+    char *temp = NULL;
+    char *dir = (*get_current_dir());
 
-    if (temp == NULL)
-        return ERROR;
-    OMNIFREE(*get_current_dir(), 1);
-    *get_current_dir() = temp;
     while (*get_tweenlist())
         DESTROY(*get_tweenlist(), get_tweenlist(), free_tween);
-    while (*get_filelist())
-        DESTROY(*get_filelist(), get_filelist(), free_file);
     *get_hovered_file() = NULL;
     *scroll_position() = 0;
+    if (my_strcmp(file->name, "..") != 0) {
+        temp = MERGESTR(*get_current_dir(), "/", file->name);
+        if (temp == NULL)
+            return ERROR;
+        OMNIFREE(*get_current_dir(), 1);
+        *get_current_dir() = temp;
+        while (*get_filelist())
+            DESTROY(*get_filelist(), get_filelist(), free_file);
+        return SUCCESS;
+    }
+    if (*get_current_dir() == NULL)
+        return ERROR;
+    for (int i = my_strlen(dir); i > 0; i--) {
+        if (dir[i] == '/') {
+            dir[i] = '\0';
+            break;
+        }
+    }
+    while (*get_filelist())
+        DESTROY(*get_filelist(), get_filelist(), free_file);
     return SUCCESS;
 }
 
