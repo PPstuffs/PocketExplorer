@@ -59,10 +59,10 @@ static int change_dir(file_t *file)
         return ERROR;
     OMNIFREE(*get_current_dir(), 1);
     *get_current_dir() = temp;
-    while (*get_filelist())
-        DESTROY(*get_filelist(), get_filelist(), free_file);
     while (*get_tweenlist())
         DESTROY(*get_tweenlist(), get_tweenlist(), free_tween);
+    while (*get_filelist())
+        DESTROY(*get_filelist(), get_filelist(), free_file);
     *get_hovered_file() = NULL;
     *scroll_position() = 0;
     return SUCCESS;
@@ -70,17 +70,20 @@ static int change_dir(file_t *file)
 
 static bool is_file_clicked(file_t *file, int x, int y)
 {
-    sfFloatRect bounds = sfSprite_getGlobalBounds(file->sprite->sprite);
-    char *temp = NULL;
+    float pos = 0.0;
+    tween_t *tween = NULL;
 
-    if (sfFloatRect_contains(&bounds, x, y)) {
+    if (sprite_rect_contains(file->sprite, x, y)) {
         if (file->type != FOLDER) {
-            make_tween("fileposx", &file->sprite->pos.y,
-                file->sprite->pos.y - 5, 0.1)->method = FETCH;
-            return true;
+            pos = get_file_pos(LISTLEN(get_filelist()) - GETNODEORD(file,
+                get_filelist()) - 1).y;
+            tween = make_tween("fileposx", &file->sprite->pos.y, pos - 5, 0.1);
+            tween->start = pos;
+            tween->method = FETCH;
+            return false;
         }
         if (change_dir(file) == ERROR)
-            return true;
+            return false;
         setup_files(*get_current_dir());
         return true;
     }
