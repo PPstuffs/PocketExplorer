@@ -96,7 +96,8 @@ static int setup_pwd(char *directory)
     if (text == NULL) {
         text = make_text("pwd", directory, WINW / 2, 5);
         text->scale = VEC(0.5, 0.5);
-        text->color = (sfColor){180, 180, 180, 255};
+        text->color = sfWhite;
+        text->alpha = 0.7;
     } else {
         x = sfText_getGlobalBounds(text->text).width;
         set_text_string(text, directory);
@@ -104,6 +105,7 @@ static int setup_pwd(char *directory)
         make_tween("pwdx", &text->pos.x, WINW / 2, 0.5)->start = x;
     }
     center_text_origin(text, 0.5, 0);
+    make_tween("alpha", &text->alpha, 0.7, 1)->start = 1;
     return SUCCESS;
 }
 
@@ -164,7 +166,7 @@ int setup_files(char *directory)
     my_sort_str_array(content);
     if (content == NULL)
         return ERROR;
-    for (int i = my_strcmp(dir, ".") == 0 ? 1 : 0; content[i] != NULL; i++) {
+    for (int i = my_strcmp(dir, ".") == 0 ? 1 : 0; i < ARRLEN(content); i++) {
         temp = MERGESTR(dir, "/", content[i]);
         if (temp == NULL)
             return ERROR;
