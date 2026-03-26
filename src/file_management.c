@@ -109,7 +109,7 @@ static int setup_pwd(char *directory)
     return SUCCESS;
 }
 
-file_t *make_file(char *name, char *directory, bool is_dir)
+file_t *make_file(char *name, char *directory, int apparition, bool is_dir)
 {
     file_t *nwfile = malloc(sizeof(file_t) * 1);
     int len = LISTLEN(get_filelist());
@@ -124,7 +124,7 @@ file_t *make_file(char *name, char *directory, bool is_dir)
     nwfile->sprite->pos.y += FILE_RISE_AMOUNT;
     nwfile->text->alpha = 0;
     nwfile->text->pos.y += FILE_RISE_AMOUNT;
-    setup_nwfile_tweens(nwfile, len / FILE_SPEED);
+    setup_nwfile_tweens(nwfile, apparition / FILE_SPEED);
     nwfile->next = *get_filelist();
     *get_filelist() = nwfile;
     return nwfile;
@@ -154,26 +154,35 @@ static char *init_dir(const char *newdir, char *dir)
     return dir;
 }
 
+static void create_all_files(char **content, char *dir , unsigned int len)
+{
+    struct stat statbuf;
+    char *temp = NULL;
+    int start = my_strcmp(dir, ".") == 0 ? 1 : 0;
+    int number = (WINH + FILE_SIZE) / FILE_SIZE;
+
+    for (int i = start; i < len; i++) {
+        temp = MERGESTR(dir, "/", content[i]);
+        if (temp == NULL)
+            continue;
+        stat(temp, &statbuf);
+        OMNIFREE(temp, 1);
+        make_file(content[i], dir, (i - start) % number + i / number,
+            S_ISDIR(statbuf.st_mode));
+    }
+}
+
 int setup_files(char *directory)
 {
     static char *dir = NULL;
     char **content = NULL;
-    char *temp = NULL;
-    struct stat statbuf;
 
     dir = init_dir(directory, dir);
     content = open_directory(dir);
     my_sort_str_array(content);
     if (content == NULL)
         return ERROR;
-    for (int i = my_strcmp(dir, ".") == 0 ? 1 : 0; i < ARRLEN(content); i++) {
-        temp = MERGESTR(dir, "/", content[i]);
-        if (temp == NULL)
-            return ERROR;
-        stat(temp, &statbuf);
-        OMNIFREE(temp, 1);
-        make_file(content[i], dir, S_ISDIR(statbuf.st_mode));
-    }
+    create_all_files(content, dir, ARRLEN(content));
     OMNIFREE(content, 2);
     return setup_pwd(dir);
 }
