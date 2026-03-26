@@ -8,7 +8,7 @@ It lets you navigate through your files and folders, as a file explorer should, 
 
 To launch the project, open a terminal at the root of the repository and run this command:
 ```bash
-./PocketExplorer <path>
+./PocketExplorer [path]
 ```
 *The <ins>`path`</ins> parameter is optional, and defines the location where the file explorer will open. By default, it'll open at the root of the repository.*
 
