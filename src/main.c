@@ -10,18 +10,25 @@
 static void events(void)
 {
     sfEvent event;
+    static int center = WINH / 2;
     sfVector2i p = {CAM->center.x + (GETMOUSEPOS.x + CAM->offset.x - 400),
         CAM->center.y + (GETMOUSEPOS.y + CAM->offset.y - 300)};
 
     resize_hovered_file(TOXY(p));
     while (sfRenderWindow_pollEvent(WINDOW, &event)) {
-        if (event.type == sfEvtClosed)
+        if (event.type == sfEvtClosed || EVTKEYPRESS(event, sfKeyEscape))
             sfRenderWindow_close(WINDOW);
-        if (event.type == sfEvtMouseButtonPressed &&
-                event.mouseButton.button == sfMouseLeft)
+        if (EVTMOUSEKEYPRESS(event, sfMouseLeft))
             move_directory(TOXY(p));
         if (event.type == sfEvtMouseWheelScrolled)
             scroll_files(event.mouseWheelScroll);
+        if (EVTKEYPRESS(event, sfKeyUp) && CAM->center.y > center)
+            make_tween("cam", &CAM->center.y,
+                MAX(CAM->center.y - 50, center), 0.5);
+        if (EVTKEYPRESS(event, sfKeyDown))
+            make_tween("cam", &CAM->center.y, CAM->center.y + 50, 0.5);
+        if (EVTKEYPRESS(event, sfKeySpace))
+            make_tween("cam", &CAM->center.y, center, 0.5)->method = BACKOUT;
     }
 }
 
