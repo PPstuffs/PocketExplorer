@@ -7,13 +7,6 @@
 
 #include "../include/main_header.h"
 
-int *scroll_position(void)
-{
-    static int factor = 0;
-
-    return &factor;
-}
-
 void scroll_files(sfMouseWheelScrollEvent mouse)
 {
     file_t *cur = *get_filelist();
@@ -32,7 +25,6 @@ void reset_files(void)
     while (*get_filelist())
         DESTROY(*get_filelist(), get_filelist(), free_file);
     *get_hovered_file() = NULL;
-    *scroll_position() = 0;
 }
 
 static bool is_file_clicked(file_t *file, int x, int y)
